@@ -56,7 +56,7 @@ def Get_Node2Vec(overlap, graph, baseoutput):
     with open(baseoutput + '-Node2Vec', 'w') as output:
         for ov in overlap:
             edge = ov
-            n2v = edges_embs[(edge[0], edge[1])]
+            n2v = edges_embs[(str(edge[0]), str(edge[1]))]
             for i, v in enumerate(n2v):
                 if i == 0:
                     output.write(str(v))
