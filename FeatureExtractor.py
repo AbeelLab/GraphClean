@@ -50,7 +50,7 @@ def ShortestPath(overlap, graph, baseoutput):
             output.write(str(sp) + '\n')
 
 def Get_Node2Vec(overlap, graph, baseoutput):
-    node2vec = Node2Vec(graph, dimensions=128, walk_length=30, num_walks=200, workers=1)
+    node2vec = Node2Vec(graph, dimensions=128, walk_length=30, num_walks=200, workers=4)
     model = node2vec.fit(window=10, min_count=1, batch_words=4)
     edges_embs = AverageEmbedder(keyed_vectors=model.wv)
     with open(baseoutput + '-Node2Vec', 'w') as output:

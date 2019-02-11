@@ -1,5 +1,4 @@
 import FeatureExtractor
-import sys
 import re
 import networkx as nx
 import UseExistingClassifier
@@ -22,19 +21,20 @@ def Overlap_From_Paf(paf_filepath):
     return overlap_list
 
 if __name__ == '__main__':
-    #parser = argparse.ArgumentParser()
-    #parser.add_argument("PAF", help="Path to the PAF file which contains overlaps")
-    #parser.add_argument("Prefix", help="Output files prefix")
-    #parser.add_argument("Model", help="Path to the model, models are inside models directory")
-    #parser.add_argument("Threshold", help="Threshold on the probabilities of prediction", type=float)
-    #args = parser.parse_args()
-    #print(args)
-    paf_filepath = sys.argv[1]
-    output = sys.argv[2]
+    parser = argparse.ArgumentParser("GraphClean detect remove induced overlaps in a paf file and remove them")
+    parser.add_argument("PAF", help="Path to the input PAF file which contains overlaps")
+    parser.add_argument("Output", help="Output files prefix")
+    parser.add_argument("-m", "--model", help="Path to the model, models are inside models directory", default= "models/model-potato-c0.1")
+    parser.add_argument("-t", "--threshold", help="Threshold on the probabilities of prediction", type=float, default=0.1)
+    args = parser.parse_args()
+    paf_filepath = args.PAF
+    output = args.Output
+    threshold = args.threshold
+    model = args.model
     overlap_list = Overlap_From_Paf(paf_filepath)
     graph = nx.Graph(overlap_list)
     nx.write_edgelist(graph, output + '-graph-edge-list')
     FeatureExtractor.Extract_All_Features(overlap_list, graph, output)
-    classification_results = UseExistingClassifier.classifyoverlaps(output, 'models/model-potato-c0.01', 0.1)
+    classification_results = UseExistingClassifier.classifyoverlaps(output, model, threshold)
     FilterOverlaps.filter(paf_filepath, overlap_list, classification_results, output)
     print("Done")
