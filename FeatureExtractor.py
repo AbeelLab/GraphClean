@@ -1,12 +1,12 @@
 import numpy as np
 import networkx as nx
 import math
-import subprocess
 from multiprocessing import Process
 from networkx.algorithms.connectivity import build_auxiliary_node_connectivity
 from networkx.algorithms.flow import build_residual_network
 from networkx.algorithms.connectivity import local_node_connectivity
-
+from node2vec import Node2Vec
+from node2vec.edges import AverageEmbedder
 
 def Connectivity(overlap, graph, baseoutput):
     coverage = 30.0
@@ -49,32 +49,14 @@ def ShortestPath(overlap, graph, baseoutput):
             graph.add_edge(edge[0], edge[1])
             output.write(str(sp) + '\n')
 
-def Fit_Node2Vec(output_filename):
-    subprocess.call("python2 node2vec/src/main.py --input " + output_filename + "-graph-edge-list  --output " + output_filename + "-n2v.emd", shell=True)
-
-
-def Set_Node2Vec_dic(output_filename):
-    n2voutput = open(output_filename + "-n2v.emd", 'r')
-    n2voutput = n2voutput.read()
-    n2voutput = n2voutput.split('\n')
-    header = n2voutput[0].split()
-    node2vecdic = {}
-    for i in range(1, len(n2voutput) - 1):
-        n2voutputline = n2voutput[i].split()
-        node2vecdic[n2voutputline[0]] = n2voutputline[1:]
-    return node2vecdic
-
-def Get_Node2Vec(overlap, baseoutput):
-    Fit_Node2Vec(baseoutput)
-    node2vecdic = Set_Node2Vec_dic(baseoutput)
+def Get_Node2Vec(overlap, graph, baseoutput):
+    node2vec = Node2Vec(graph, dimensions=128, walk_length=30, num_walks=200, workers=1)
+    model = node2vec.fit(window=10, min_count=1, batch_words=4)
+    edges_embs = AverageEmbedder(keyed_vectors=model.wv)
     with open(baseoutput + '-Node2Vec', 'w') as output:
         for ov in overlap:
             edge = ov
-            dim1 = np.asarray(node2vecdic.get(str(edge[0])))
-            dim2 = np.asarray(node2vecdic.get(str(edge[1])))
-            dim1 = dim1.astype(float)
-            dim2 = dim2.astype(float)
-            n2v = np.add(dim1, dim2) / 2.0
+            n2v = edges_embs[(edge[0], edge[1])]
             for i, v in enumerate(n2v):
                 if i == 0:
                     output.write(str(v))
@@ -122,7 +104,7 @@ def Extract_All_Features(overlap, graph, output):
     p = Process(target=ShortestPath, args=(overlap, graph, output,))
     p.start()
     ProcessList.append(p)
-    p = Process(target=Get_Node2Vec, args=(overlap, output,))
+    p = Process(target=Get_Node2Vec, args=(overlap, graph, output,))
     p.start()
     ProcessList.append(p)
     p = Process(target=SpringLayout, args=(overlap, graph, output,))
