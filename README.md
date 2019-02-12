@@ -2,8 +2,25 @@
 ## Getting Started
 
 ```sh
-python GraphClean.py potato-overlaps.paf results/potato #Find and remove repeat induced overlaps in potato-overlaps.paf and print the normal overlaps to results/potato-newoverlaps.paf
-python Graphclean.py potato-overlaps.paf results/potato -m models/model-potato-c0.01 -t 0.1 #Find and remove repeat induced overlaps in potato-overlaps.paf using models/model-potato-c0.01 model and 0.1 threshold and print the normal overlaps to results/potato-newoverlaps.paf
+usage: GraphClean detect remove induced overlaps in a paf file and remove them
+       [-h] [-m MODEL] [-t THRESHOLD] PAF Output
+
+positional arguments:
+  PAF                   Path to the input PAF file which contains overlaps
+  Output                Output files prefix
+
+optional arguments:
+  -h, --help            show this help message and exit
+  -m MODEL, --model MODEL
+                        Path to the model, models are inside models directory
+  -t THRESHOLD, --threshold THRESHOLD
+                        Threshold on the probabilities of prediction
+
+example:
+#Find and remove repeat induced overlaps in potato-overlaps.paf and print the normal overlaps to results/potato-newoverlaps.paf
+python GraphClean.py potato-overlaps.paf results/potato 
+#Find and remove repeat induced overlaps in potato-overlaps.paf using models/model-potato-c0.01 model and 0.1 threshold and print the normal overlaps to results/potato-newoverlaps.paf
+python Graphclean.py potato-overlaps.paf results/potato -m models/model-potato-c0.01 -t 0.1
 ```
 
 ## Requirements
