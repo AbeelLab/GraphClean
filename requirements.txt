@@ -1,0 +1,4 @@
+numpy==1.15.1
+networkx==2.2
+node2vec==0.3.0
+pandas==0.24.1
